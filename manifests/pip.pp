@@ -247,7 +247,7 @@ define python::pip (
         # Latest version.
         exec { "pip_install_${name}":
           command     => "${pip_env} wheel --help > /dev/null 2>&1 && { ${pip_env} wheel --version > /dev/null 2>&1 || wheel_support_flag='--no-use-wheel'; } ; { ${pip_env} --log ${log}/pip.log install --upgrade \$wheel_support_flag ${pypi_index} ${proxy_flag} ${install_args} ${install_editable} ${source} || ${pip_env} --log ${log}/pip.log install --upgrade ${pypi_index} ${proxy_flag} ${install_args} ${install_editable} ${source} ;}",
-          unless      => "${pip_env} search ${pypi_search_index} ${proxy_flag} ${source} | grep -i INSTALLED.*latest",
+          unless      => "${pip_env} freeze | grep -i -e ${grep_regex} && ${pip_env} list -u ${proxy_flag} | sed -e 's/[ ]\\+/==/' -e 's/[()]//g' | grep -i -e ${grep_regex}",
           user        => $owner,
           group       => $group,
           cwd         => $cwd,
